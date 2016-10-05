@@ -46,7 +46,43 @@ class StockRouter(val productService: StockService)(implicit executionContext: E
       pathEndOrSingleSlash {
         post {
           entity(as[StockMovement]) { stock =>
-            complete(addStock(stock)).map(_.asJson))
+            complete(addStock(stock).map(_.asJson))
+          }
+        }
+      }
+    } ~
+    pathPrefix("remove") {
+      pathEndOrSingleSlash {
+        post {
+          entity(as[StockMovement]) { stock =>
+            complete(removeStock(stock).map(_.asJson))
+          }
+        }
+      }
+    } ~
+    pathPrefix("reserve") {
+      pathEndOrSingleSlash {
+        post {
+          entity(as[StockMovement]) { stock =>
+            complete(reserveStock(stock).map(_.asJson))
+          }
+        }
+      }
+    } ~
+    pathPrefix("removeReserve") {
+      pathEndOrSingleSlash {
+        post {
+          entity(as[StockMovement]) { stock =>
+            complete(removeReservedStock(stock).map(_.asJson))
+          }
+        }
+      }
+    } ~
+    pathPrefix("free") {
+      pathEndOrSingleSlash {
+        post {
+          entity(as[StockMovement]) { stock =>
+            complete(unReserveStock(stock).map(_.asJson))
           }
         }
       }
