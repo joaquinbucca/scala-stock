@@ -34,17 +34,11 @@ abstract class ConcreteStock extends Stock with RootConnector {
       .future()
   }
 
-  def getAll: Future[Seq[StockEntity]] = {
-    select.limit(100).fetch()
-  }
+  def getAll: Future[Seq[StockEntity]] = select.limit(100).fetch()
 
-  def getById(stockId: UUID): Future[Option[StockEntity]] = {
-    select.where(_.id eqs stockId).one()
-  }
+  def getById(stockId: UUID): Future[Option[StockEntity]] = select.where(_.id eqs stockId).one()
 
-  def getByProductId(productId: UUID): Future[Option[StockEntity]] = {
-    select.where(_.productId eqs productId).one()
-  }
+  def getByProductId(productId: UUID): Future[Option[StockEntity]] = select.where(_.productId eqs productId).one()
 
   def deleteById(stockId: UUID): Future[ResultSet] = {
     delete
