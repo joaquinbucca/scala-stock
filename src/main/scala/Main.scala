@@ -2,6 +2,11 @@ import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
+import com.websudos.phantom.dsl.KeySpaceDef
+import model.db.ProductionDb
+import model.services.StockService
+import routes.RouteHandler
+import utils.Config
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -21,8 +26,8 @@ object Main extends App with Config {
   val logger = Logging(system, getClass)
 
 
-  private val productsService: ProductService = new ProductService
-  val routeHandler = new RouteHandler(productsService)
+  private val stockService: StockService = new StockService
+  val routeHandler = new RouteHandler(stockService)
 
   private val connector: KeySpaceDef = ProductionDb.connector
 

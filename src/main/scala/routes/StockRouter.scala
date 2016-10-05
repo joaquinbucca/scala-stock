@@ -1,41 +1,54 @@
 package routes
 
+import java.util.UUID
+
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
+import de.heikoseeberger.akkahttpcirce.CirceSupport
+import model.entities.{StockEntity, StockMovement}
+import model.services.StockService
+import io.circe.generic.auto._
+import io.circe.syntax._
 
 import scala.concurrent.ExecutionContext
 
 /**
   * Created by joaquinbucca on 9/27/16.
   */
-class StockRouter(val productService: ProductService)(implicit executionContext: ExecutionContext) extends CirceSupport {
+class StockRouter(val productService: StockService)(implicit executionContext: ExecutionContext) extends CirceSupport {
 
-  val route = pathPrefix("products") {
+  import productService._
+
+  val route = pathPrefix("stocks") {
     pathEndOrSingleSlash {
       get {
-        complete(getAllProducts.map(_.asJson))
+        complete(getAllProductStocks.map(_.asJson))
       } ~
       post {
-        entity(as[ProductEntity]) { product =>
-          complete(createProduct(product).map(_.asJson))
+        entity(as[StockEntity]) { stock =>
+          complete(createStockRow(stock).map(_.asJson))
         }
       }
     } ~
     pathPrefix(Rest) { productId =>
       pathEndOrSingleSlash {
         get {
-          complete(getProductById(productId).map(_.asJson))
+          complete(getProductStockById(UUID.fromString(productId)).map(_.asJson))
         } ~
-          post {
-            entity(as[ProductEntity]) { productUpdate =>
-              complete(updateProduct(productUpdate).map(_.asJson))
-            }
-          } ~
           delete {
-            onSuccess(deleteProduct(productId)) { ignored =>
+            onSuccess(deleteProductStockRow(UUID.fromString(productId))) { ignored =>
               complete(NoContent)
             }
           }
+      }
+    } ~
+    pathPrefix("add") {
+      pathEndOrSingleSlash {
+        post {
+          entity(as[StockMovement]) { stock =>
+            complete(addStock(stock)).map(_.asJson))
+          }
+        }
       }
     }
   }

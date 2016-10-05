@@ -1,6 +1,7 @@
 package model.services
 
-import model.entities.ProductEntity
+import com.websudos.phantom.dsl.UUID
+import model.entities.{StockEntity, StockMovement}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -11,19 +12,35 @@ class StockService(implicit executionContext: ExecutionContext) {
 
   import model.db.ProductionDatabase.database._
 
-  def getAllProducts: Future[Seq[ProductEntity]] = stockModel.getAll
+  def getAllProductStocks: Future[Seq[StockEntity]] = stockModel.getAll
 
-  def getProductById(productId: String): Future[Option[ProductEntity]] = stockModel.getById(productId)
+  def getProductStockById(productId: UUID): Future[Option[StockEntity]] = stockModel.getByProductId(productId)
 
-  def createProduct(product: ProductEntity): Future[ProductEntity] = {
-    stockModel.store(product).flatMap(p =>  stockModel.getById(product.id).map(f => f.get ))
+  def createStockRow(stock: StockEntity): Future[StockEntity] = {
+    stockModel.store(stock).flatMap(p =>  stockModel.getById(stock.id).map(f => f.get ))
   }
 
-  def updateProduct(productUpdate: ProductEntity): Future[ProductEntity] = {
-    stockModel.store(productUpdate).flatMap(p =>  stockModel.getById(productUpdate.id).map(f => f.get))
+  def addStock(move: StockMovement): Future[StockEntity] = {
+    stockModel.store(StockEntity(move.productId, move.productId, 0, 0)).flatMap(p =>  stockModel.getByProductId(move.productId).map(f => f.get))
   }
 
-  def deleteProduct(productId: String): Future[String] = stockModel.deleteById(productId).map(rs => productId)
+  def removeStock(move: StockMovement): Future[StockEntity] = {
+    stockModel.decrementAvailable(move).flatMap(p =>  stockModel.getByProductId(move.productId).map(f => f.get))
+  }
+
+  def reserveStock(move: StockMovement): Future[StockEntity] = {
+    stockModel.incrementReserved(move).flatMap(p =>  stockModel.getByProductId(move.productId).map(f => f.get))
+  }
+
+  def removeReservedStock(move: StockMovement): Future[StockEntity] = {
+    stockModel.decrementReserved(move).flatMap(p =>  stockModel.getByProductId(move.productId).map(f => f.get))
+  }
+
+  def unReserveStock(move: StockMovement): Future[StockEntity] = {
+    stockModel.unReserved(move).flatMap(p =>  stockModel.getByProductId(move.productId).map(f => f.get))
+  }
+
+  def deleteProductStockRow(productId: UUID): Future[UUID] = stockModel.deleteByProductId(productId).map(rs => productId)
 
 
 }
