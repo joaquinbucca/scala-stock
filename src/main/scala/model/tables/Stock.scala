@@ -71,8 +71,8 @@ abstract class ConcreteStock extends Stock with RootConnector {
   def incrementReserved(move: StockMovement): Future[ResultSet] = {
     update
       .where(_.productId eqs move.productId)
-//      .modify(_.available -= move.quantity)
-      .modify(_.reserved += move.quantity)
+      .modify(_.available -= move.quantity)
+      .and(_.reserved += move.quantity)
       .future()
   }
 
@@ -86,8 +86,8 @@ abstract class ConcreteStock extends Stock with RootConnector {
   def unReserved(move: StockMovement): Future[ResultSet] = {
     update
       .where(_.productId eqs move.productId)
-//      .modify(_.available += move.quantity)
-      .modify(_.reserved -= move.quantity)
+      .modify(_.available += move.quantity)
+      .and(_.reserved -= move.quantity)
       .future()
   }
 }
