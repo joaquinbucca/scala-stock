@@ -10,11 +10,12 @@ import scala.collection.JavaConversions._
 object DbConnector {
 
   val config = ConfigFactory.load()
+  val cassandraConfig = config.getConfig("cassandra")
 
-  val hosts = config.getStringList("cassandra.host")
+  val hosts = cassandraConfig.getStringList("host")
   val inets = hosts.map(InetAddress.getByName)
 
-  val keySpace: String = config.getString("cassandra.keyspace")
+  val keySpace: String = cassandraConfig.getString("keyspace")
 
   /**
     * Create a connector with the ability to connects to
@@ -22,8 +23,8 @@ object DbConnector {
     */
   lazy val connector = ContactPoints(hosts).withClusterBuilder(
     _.withCredentials(
-      config.getString("cassandra.username"),
-      config.getString("cassandra.password")
+      cassandraConfig.getString("username"),
+      cassandraConfig.getString("password")
     )
   ).keySpace(keySpace)
 

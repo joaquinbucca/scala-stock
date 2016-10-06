@@ -29,6 +29,8 @@ libraryDependencies ++= {
     "io.circe" %% "circe-generic" % circeV,
     "io.circe" %% "circe-parser" % circeV,
 
+    "com.codacy" %% "scala-consul" % "1.1.0",
+
     "org.scalatest"     %% "scalatest" % scalaTestV % "test"
   )
 }

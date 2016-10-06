@@ -1,8 +1,12 @@
+import java.net.Inet4Address
+
 import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import com.websudos.phantom.dsl.KeySpaceDef
+import consul.Consul
+import consul.v1.catalog.Registerable
 import model.db.ProductionDb
 import model.services.StockService
 import routes.RouteHandler
@@ -34,7 +38,13 @@ object Main extends App with Config {
   implicit val keySpace = connector.provider.space
   implicit val session = connector.session
 
-  Await.result(ProductionDb.autocreate.future(), 10 seconds)
+  Await.result(ProductionDb.autocreate.future(), 10 seconds) //todo : awaits are not recommended in production
+
+  //todo register service to consul
+
+  val consul = new Consul(new Inet4Address(consulAddress, consulPort))
+  import consul.v1._
+  catalog.register(Registerable("asdas", "asdasdas", Option("asdsad"), "asdasa", ""))
 
   Http().bindAndHandle(routeHandler.routes, httpHost, httpPort)
 
