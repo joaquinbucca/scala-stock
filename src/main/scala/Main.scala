@@ -6,7 +6,8 @@ import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import com.websudos.phantom.dsl.KeySpaceDef
 import consul.Consul
-import consul.v1.catalog.Registerable
+import consul.v1.catalog.{Check, Registerable, Service}
+import consul.v1.common.{CheckStatus, Types}
 import model.db.ProductionDb
 import model.services.StockService
 import routes.RouteHandler
@@ -44,7 +45,12 @@ object Main extends App with Config {
 
   val consul = new Consul(new Inet4Address(consulAddress, consulPort))
   import consul.v1._
-  catalog.register(Registerable("asdas", "asdasdas", Option("asdsad"), "asdasa", ""))
+  val nodeId = Types.NodeId("stock1")
+  private val serviceId: Types.ServiceId = Types.ServiceId("stock")
+  val service = Service(serviceId, Types.ServiceType("stock"),
+    Set(Types.ServiceTag("asd")), Option("asdasd"), Option(12))
+  val check = Check(nodeId, Types.CheckId("asdas"), "supercheck", Option("some"), CheckStatus.critical, Option(serviceId))
+  catalog.register(Registerable(nodeId, consulAddress, Option(service), Option(check), Option(Types.DatacenterId("blabla"))))
 
   Http().bindAndHandle(routeHandler.routes, httpHost, httpPort)
 
