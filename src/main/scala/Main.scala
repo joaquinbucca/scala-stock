@@ -48,6 +48,7 @@ object Main extends App with Config {
   val nodeId = Types.NodeId("stock1") //todo: something identifyng this node, maybe the ip address?
 
   //todo: right now, im using catalog to register nodes and services, should i use agent instead? is agent local and automatically updates to cluster or what?
+  // register via agent and query via dns queries or catalog.
 
   private val serviceId: Types.ServiceId = Types.ServiceId("stock")
 
