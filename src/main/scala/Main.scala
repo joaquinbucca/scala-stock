@@ -1,4 +1,4 @@
-import java.net.Inet4Address
+import java.net.{Inet4Address, InetAddress}
 
 import akka.actor.ActorSystem
 import akka.event.Logging
@@ -45,11 +45,17 @@ object Main extends App with Config {
 
   val consul = new Consul(new Inet4Address(consulAddress, consulPort))
   import consul.v1._
-  val nodeId = Types.NodeId("stock1")
+  val nodeId = Types.NodeId("stock1") //todo: something identifyng this node, maybe the ip address?
+
+  //todo: right now, im using catalog to register nodes and services, should i use agent instead? is agent local and automatically updates to cluster or what?
+
   private val serviceId: Types.ServiceId = Types.ServiceId("stock")
-  val service = Service(serviceId, Types.ServiceType("stock"),
-    Set(Types.ServiceTag("asd")), Option("asdasd"), Option(12))
-  val check = Check(nodeId, Types.CheckId("asdas"), "supercheck", Option("some"), CheckStatus.critical, Option(serviceId))
+
+  val service = Service(serviceId, Types.ServiceType("micro"),
+    Set(), Option(InetAddress.getLocalHost.getHostAddress), Option(httpPort))
+
+  val check = Check(nodeId, Types.CheckId("stockCheck"), "stockCheck", None, CheckStatus.passing, Option(serviceId))
+
   catalog.register(Registerable(nodeId, consulAddress, Option(service), Option(check), Option(Types.DatacenterId("blabla"))))
 
   Http().bindAndHandle(routeHandler.routes, httpHost, httpPort)
