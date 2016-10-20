@@ -2,8 +2,6 @@ package routes
 
 import akka.http.scaladsl.server.Directives._
 import model.services.StockService
-import io.circe.generic.auto._
-import io.circe.syntax._
 
 import scala.concurrent.{ExecutionContext, Future}
 
