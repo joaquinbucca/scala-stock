@@ -6,6 +6,9 @@ import com.typesafe.config.ConfigFactory
 import com.websudos.phantom.connectors.{ContactPoint, ContactPoints}
 
 import scala.collection.JavaConversions._
+//import scala.concurrent.Await
+//import scala.concurrent.duration._
+import scala.language.postfixOps
 
 object DbConnector {
 
@@ -13,7 +16,7 @@ object DbConnector {
   val cassandraConfig = config.getConfig("cassandra")
 
   //todo: check because maybe i could connect cassandra to consul and then access cassandra via consul
-//  val hosts = ConsulHandler.getServicesAddressesByType("CASSANDRA")
+//  val hosts = Await.result(ConsulHandler.getServicesAddressesByType("CASSANDRA").map(a => a), 10 seconds)
   val hosts = cassandraConfig.getStringList("host")
   val inets = hosts.map(InetAddress.getByName)
 
