@@ -13,8 +13,4 @@ trait Config {
   val httpHost = httpConfig.getString("interface")
   val httpPort = httpConfig.getInt("port")
 
-  private val consulConfig = config.getConfig("consul")
-  val consulAddress = consulConfig.getString("address")
-  val consulPort = consulConfig.getInt("port")
-
 }

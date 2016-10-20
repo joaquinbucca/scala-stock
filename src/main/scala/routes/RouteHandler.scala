@@ -2,8 +2,10 @@ package routes
 
 import akka.http.scaladsl.server.Directives._
 import model.services.StockService
+import io.circe.generic.auto._
+import io.circe.syntax._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Created by joaquinbucca on 9/27/16.
@@ -14,7 +16,14 @@ class RouteHandler(stockService: StockService)(implicit ex : ExecutionContext) {
 
   val routes = {
     logRequestResult("akka-http-microservice") {
-      stockRouter.route
+      stockRouter.route ~
+        pathPrefix("health") {
+          pathEndOrSingleSlash {
+            get {
+              complete("true")
+            }
+          }
+        }
 
     }
   }

@@ -1,17 +1,12 @@
-import java.net.{Inet4Address, InetAddress}
-
 import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import com.websudos.phantom.dsl.KeySpaceDef
-import consul.Consul
-import consul.v1.catalog.{Check, Registerable, Service}
-import consul.v1.common.{CheckStatus, Types}
 import model.db.ProductionDb
 import model.services.StockService
 import routes.RouteHandler
-import utils.Config
+import utils.{Config, ConsulHandler}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -41,23 +36,7 @@ object Main extends App with Config {
 
   Await.result(ProductionDb.autocreate.future(), 10 seconds) //todo : awaits are not recommended in production
 
-  //todo register service to consul
-
-  val consul = new Consul(new Inet4Address(consulAddress, consulPort))
-  import consul.v1._
-  val nodeId = Types.NodeId("stock1") //todo: something identifyng this node, maybe the ip address?
-
-  //todo: right now, im using catalog to register nodes and services, should i use agent instead? is agent local and automatically updates to cluster or what?
-  // register via agent and query via dns queries or catalog.
-
-  private val serviceId: Types.ServiceId = Types.ServiceId("stock")
-
-  val service = Service(serviceId, Types.ServiceType("micro"),
-    Set(), Option(InetAddress.getLocalHost.getHostAddress), Option(httpPort))
-
-  val check = Check(nodeId, Types.CheckId("stockCheck"), "stockCheck", None, CheckStatus.passing, Option(serviceId))
-
-  catalog.register(Registerable(nodeId, consulAddress, Option(service), Option(check), Option(Types.DatacenterId("blabla"))))
+  ConsulHandler.register("stock", "STOCK")
 
   Http().bindAndHandle(routeHandler.routes, httpHost, httpPort)
 

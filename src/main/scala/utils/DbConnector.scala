@@ -12,6 +12,7 @@ object DbConnector {
   val config = ConfigFactory.load()
   val cassandraConfig = config.getConfig("cassandra")
 
+  //todo: check because maybe i could connect cassandra to consul and then access cassandra via consul
   val hosts = cassandraConfig.getStringList("host")
   val inets = hosts.map(InetAddress.getByName)
 
