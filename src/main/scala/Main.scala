@@ -34,9 +34,9 @@ object Main extends App with Config {
   implicit val keySpace = connector.provider.space
   implicit val session = connector.session
 
-  Await.result(ProductionDb.autocreate.future(), 10 seconds) //todo : awaits are not recommended in production
-
   ConsulHandler.register("stock", "STOCK")
+
+  Await.result(ProductionDb.autocreate.future(), 10 seconds) //todo : awaits are not recommended in production
 
   Http().bindAndHandle(routeHandler.routes, httpHost, httpPort)
 
