@@ -15,13 +15,13 @@ class RouteHandler(stockService: StockService)(implicit ex : ExecutionContext) {
   val routes = {
     logRequestResult("akka-http-microservice") {
       stockRouter.route ~
-        pathPrefix("health") {
-          pathEndOrSingleSlash {
-            get {
-              complete("true")
-            }
+      pathPrefix("health") {
+        pathEndOrSingleSlash {
+          get {
+            complete("true")
           }
         }
+      }
 
     }
   }

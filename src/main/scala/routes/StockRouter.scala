@@ -15,78 +15,80 @@ import scala.concurrent.ExecutionContext
 /**
   * Created by joaquinbucca on 9/27/16.
   */
-class StockRouter(val productService: StockService)(implicit executionContext: ExecutionContext) extends CirceSupport {
+class StockRouter(val productService: StockService)(implicit executionContext: ExecutionContext) extends CirceSupport with SecurityDirectives {
 
   import productService._
 
   val route = pathPrefix("stocks") {
-    pathEndOrSingleSlash {
-      get {
-        complete(getAllProductStocks.map(_.asJson))
-      } ~
-      post {
-        entity(as[StockEntity]) { stock =>
-          complete(createStockRow(stock).map(_.asJson))
-        }
-      }
-    } ~
-    pathPrefix(Rest) { productId =>
+//    authenticate {loggedUser => todo: that user may be used to save what user makes changes on tables
       pathEndOrSingleSlash {
         get {
-          complete(getProductStockById(UUID.fromString(productId)).map(_.asJson))
+          complete(getAllProductStocks.map(_.asJson))
         } ~
-          delete {
-            onSuccess(deleteProductStockRow(UUID.fromString(productId))) { ignored =>
-              complete(NoContent)
+          post {
+            entity(as[StockEntity]) { stock =>
+              complete(createStockRow(stock).map(_.asJson))
             }
           }
-      }
-    } ~
-    pathPrefix("add") {
-      pathEndOrSingleSlash {
-        post {
-          entity(as[StockMovement]) { stock =>
-            complete(addStock(stock).map(_.asJson))
+      } ~
+        pathPrefix(Rest) { productId =>
+          pathEndOrSingleSlash {
+            get {
+              complete(getProductStockById(UUID.fromString(productId)).map(_.asJson))
+            } ~
+              delete {
+                onSuccess(deleteProductStockRow(UUID.fromString(productId))) { ignored =>
+                  complete(NoContent)
+                }
+              }
+          }
+        } ~
+        pathPrefix("add") {
+          pathEndOrSingleSlash {
+            post {
+              entity(as[StockMovement]) { stock =>
+                complete(addStock(stock).map(_.asJson))
+              }
+            }
+          }
+        } ~
+        pathPrefix("remove") {
+          pathEndOrSingleSlash {
+            post {
+              entity(as[StockMovement]) { stock =>
+                complete(removeStock(stock).map(_.asJson))
+              }
+            }
+          }
+        } ~
+        pathPrefix("reserve") {
+          pathEndOrSingleSlash {
+            post {
+              entity(as[StockMovement]) { stock =>
+                complete(reserveStock(stock).map(_.asJson))
+              }
+            }
+          }
+        } ~
+        pathPrefix("removeReserve") {
+          pathEndOrSingleSlash {
+            post {
+              entity(as[StockMovement]) { stock =>
+                complete(removeReservedStock(stock).map(_.asJson))
+              }
+            }
+          }
+        } ~
+        pathPrefix("free") {
+          pathEndOrSingleSlash {
+            post {
+              entity(as[StockMovement]) { stock =>
+                complete(unReserveStock(stock).map(_.asJson))
+              }
+            }
           }
         }
-      }
-    } ~
-    pathPrefix("remove") {
-      pathEndOrSingleSlash {
-        post {
-          entity(as[StockMovement]) { stock =>
-            complete(removeStock(stock).map(_.asJson))
-          }
-        }
-      }
-    } ~
-    pathPrefix("reserve") {
-      pathEndOrSingleSlash {
-        post {
-          entity(as[StockMovement]) { stock =>
-            complete(reserveStock(stock).map(_.asJson))
-          }
-        }
-      }
-    } ~
-    pathPrefix("removeReserve") {
-      pathEndOrSingleSlash {
-        post {
-          entity(as[StockMovement]) { stock =>
-            complete(removeReservedStock(stock).map(_.asJson))
-          }
-        }
-      }
-    } ~
-    pathPrefix("free") {
-      pathEndOrSingleSlash {
-        post {
-          entity(as[StockMovement]) { stock =>
-            complete(unReserveStock(stock).map(_.asJson))
-          }
-        }
-      }
-    }
+//    }
   }
 
 
